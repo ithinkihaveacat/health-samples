@@ -16,55 +16,74 @@
 package com.example.exercisesamplecompose.app
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
+import androidx.concurrent.futures.await
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.FragmentActivity
+import androidx.health.services.client.data.ExerciseTrackedStatus.Companion.NO_EXERCISE_IN_PROGRESS
+import androidx.health.services.client.data.ExerciseTrackedStatus.Companion.OTHER_APP_IN_PROGRESS
+import androidx.health.services.client.data.ExerciseTrackedStatus.Companion.OWNED_EXERCISE_IN_PROGRESS
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
+import com.example.exercisesamplecompose.data.ExerciseClientManager
 import com.example.exercisesamplecompose.presentation.ExerciseSampleApp
 import com.example.exercisesamplecompose.presentation.exercise.ExerciseViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : FragmentActivity() {
 
-    private lateinit var navController: NavHostController
+  private lateinit var navController: NavHostController
 
-    private val exerciseViewModel by viewModels<ExerciseViewModel>()
+  private val exerciseViewModel by viewModels<ExerciseViewModel>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        val splash = installSplashScreen()
-        var pendingNavigation = true
+  @Inject lateinit var exerciseClientManager: ExerciseClientManager
 
-        splash.setKeepOnScreenCondition { pendingNavigation }
+  override fun onCreate(savedInstanceState: Bundle?) {
+    val splash = installSplashScreen()
+    var pendingNavigation = true
 
-        super.onCreate(savedInstanceState)
+    splash.setKeepOnScreenCondition { pendingNavigation }
 
-        setContent {
-            navController = rememberSwipeDismissableNavController()
+    super.onCreate(savedInstanceState)
 
-            ExerciseSampleApp(
-                navController,
-                onFinishActivity = { this.finish() }
-            )
-
-            LaunchedEffect(Unit) {
-                prepareIfNoExercise()
-                pendingNavigation = false
-            }
-        }
+    lifecycleScope.launch {
+      val exerciseInfo = exerciseClientManager.exerciseClient.getCurrentExerciseInfoAsync().await()
+      Log.d("qqqqqq", "$exerciseInfo")
+      Log.d("qqqqqq", "${exerciseInfo.exerciseTrackedStatus}")
+      when (exerciseInfo.exerciseTrackedStatus) {
+        OTHER_APP_IN_PROGRESS -> Log.d("qqqqqq", "OTHER_APP_IN_PROGRESS")
+        OWNED_EXERCISE_IN_PROGRESS -> Log.d("qqqqqq", "OWNED_EXERCISE_IN_PROGRESS")
+        NO_EXERCISE_IN_PROGRESS -> Log.d("qqqqqq", "NO_EXERCISE_IN_PROGRESS")
+      }
     }
 
-    private suspend fun prepareIfNoExercise() {
-        /** Check if we have an active exercise. If true, set our destination as the
-         * Exercise Screen. If false, route to preparing a new exercise. **/
-        val isRegularLaunch =
-            navController.currentDestination?.route == Screen.Exercise.route
-        if (isRegularLaunch && !exerciseViewModel.isExerciseInProgress()) {
-            navController.navigate(Screen.PreparingExercise.route)
-        }
+    setContent {
+      navController = rememberSwipeDismissableNavController()
+
+      ExerciseSampleApp(navController, onFinishActivity = { this.finish() })
+
+      LaunchedEffect(Unit) {
+        prepareIfNoExercise()
+        pendingNavigation = false
+      }
     }
+  }
+
+  private suspend fun prepareIfNoExercise() {
+    /**
+     * Check if we have an active exercise. If true, set our destination as the Exercise Screen. If
+     * false, route to preparing a new exercise. *
+     */
+    val isRegularLaunch = navController.currentDestination?.route == Screen.Exercise.route
+    if (isRegularLaunch && !exerciseViewModel.isExerciseInProgress()) {
+      navController.navigate(Screen.PreparingExercise.route)
+    }
+  }
 }
-

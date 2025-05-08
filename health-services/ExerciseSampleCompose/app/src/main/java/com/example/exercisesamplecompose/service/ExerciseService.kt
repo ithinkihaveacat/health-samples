@@ -74,7 +74,7 @@ class ExerciseService : LifecycleService() {
      * Start exercise in this service's coroutine context.
      */
     suspend fun startExercise() {
-        postOngoingActivityNotification()
+//        postOngoingActivityNotification()
         exerciseClientManager.startExercise()
     }
 
@@ -197,7 +197,7 @@ class ExerciseService : LifecycleService() {
         if (!serviceRunningInForeground) {
             Log.d(TAG, "Posting ongoing activity notification")
 
-            exerciseNotificationManager.createNotificationChannel()
+//            exerciseNotificationManager.createNotificationChannel()
             val serviceState = exerciseServiceMonitor.exerciseServiceState.value
             ServiceCompat.startForeground(
                 this,

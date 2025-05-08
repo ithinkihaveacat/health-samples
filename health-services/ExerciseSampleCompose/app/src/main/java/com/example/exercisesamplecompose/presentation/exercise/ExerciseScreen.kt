@@ -17,6 +17,7 @@
 
 package com.example.exercisesamplecompose.presentation.exercise
 
+import android.R.attr.text
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,6 +27,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -33,10 +35,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.currentStateAsState
 import androidx.wear.compose.foundation.pager.rememberPagerState
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
@@ -53,6 +59,7 @@ import com.example.exercisesamplecompose.presentation.component.PauseButton
 import com.example.exercisesamplecompose.presentation.component.ResumeButton
 import com.example.exercisesamplecompose.presentation.component.StartButton
 import com.example.exercisesamplecompose.presentation.component.StopButton
+import com.example.exercisesamplecompose.presentation.component.formatCalories
 import com.example.exercisesamplecompose.presentation.component.formatElapsedTime
 import com.example.exercisesamplecompose.presentation.dialogs.ExerciseGoalMet
 import com.example.exercisesamplecompose.presentation.summary.SummaryScreenState
@@ -135,9 +142,20 @@ fun ExerciseScreen(
     val coroutineScope = rememberCoroutineScope()
     val pagerState = rememberPagerState(initialPage = 1, pageCount = { 2 })
 
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val lifecycleState by lifecycleOwner.lifecycle.currentStateAsState()
+
+    LaunchedEffect(key1 = ambientState) {
+        Log.d("qqqqqq", "ambient state change: $ambientState")
+    }
+
+    LaunchedEffect(key1 = lifecycleState) {
+        Log.d("qqqqqq", "lifecycle state change: ${lifecycleState.name}")
+    }
+
     // Workaround bug in modifier placement in PagerScreen
     Box(
-        modifier = modifier.ambientBlank(ambientState)
+//        modifier = modifier.ambientBlank(ambientState)
     ) {
         PagerScreen(
             state = pagerState,
@@ -168,7 +186,7 @@ fun ExerciseScreen(
                 }
 
                 1 -> {
-                    ExerciseMetrics(uiState = uiState)
+                    ExerciseMetrics(uiState = uiState, ambientState = ambientState, lifecycleState = lifecycleState)
                 }
             }
         }
@@ -187,6 +205,8 @@ fun ExerciseScreen(
 @Composable
 private fun ExerciseMetrics(
     uiState: ExerciseScreenState,
+    ambientState: AmbientState,
+    lifecycleState: Lifecycle.State,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -197,9 +217,11 @@ private fun ExerciseMetrics(
     ) {
         HeartRateRow(uiState)
 
-        CaloriesRow(uiState)
+        AmbientStateRow(ambientState)
 
-        DistanceAndLapsRow(uiState)
+        LifecycleStateRow(lifecycleState)
+
+//        DistanceAndLapsRow(uiState)
 
         DurationRow(uiState)
     }
@@ -257,6 +279,40 @@ private fun HeartRateRow(uiState: ExerciseScreenState) {
             HRText(
                 hr = uiState.exerciseState?.exerciseMetrics?.heartRate
             )
+        }
+    }
+}
+
+@Composable
+private fun AmbientStateRow(ambientState: AmbientState) {
+    Row {
+        Column {
+            Row(horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth() ) {
+                Text(
+                    text = ambientState.displayName, fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colors.primary,
+                    fontSize = 20.sp
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun LifecycleStateRow(state: Lifecycle.State) {
+    Row {
+        Column {
+            Row(horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth() ) {
+                Text(
+                    text = state.name, fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colors.primary,
+                    fontSize = 20.sp
+                )
+            }
         }
     }
 }
