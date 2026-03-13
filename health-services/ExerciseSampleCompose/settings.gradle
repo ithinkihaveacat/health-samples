@@ -34,3 +34,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "ExerciseSampleCompose"
 include ":app"
+include ":health-services-client"

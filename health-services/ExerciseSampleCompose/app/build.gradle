@@ -103,7 +103,7 @@ dependencies {
   implementation libs.horologist.health.service
 
   //Wear Health Services
-  implementation libs.androidx.health.services
+  implementation project(':health-services-client')
 
   // Lifecycle components
   implementation libs.androidx.lifecycle.viewmodel
@@ -138,4 +138,8 @@ dependencies {
   androidTestImplementation libs.test.espresso.core
   androidTestImplementation libs.compose.ui.test.junit4
   debugImplementation libs.compose.ui.tooling
+}
+
+configurations.all {
+    exclude group: "androidx.health", module: "health-services-client"
 }
