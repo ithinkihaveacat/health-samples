@@ -132,7 +132,7 @@ constructor(
                 exerciseType = ExerciseType.RUNNING,
                 dataTypes = dataTypes,
                 isAutoPauseAndResumeEnabled = supportsAutoPauseAndResume,
-                isGpsEnabled = true,
+                isGpsEnabled = false,
                 exerciseGoals = exerciseGoals
             )
 
@@ -149,7 +149,7 @@ constructor(
         val warmUpConfig =
             WarmUpConfig(
                 exerciseType = ExerciseType.RUNNING,
-                dataTypes = setOf(DataType.HEART_RATE_BPM, DataType.LOCATION)
+                dataTypes = setOf(DataType.HEART_RATE_BPM)
             )
         try {
             exerciseClient.prepareExercise(warmUpConfig)
@@ -182,10 +182,9 @@ constructor(
     }
 
     /**
-     * When the flow starts, it will register an [ExerciseUpdateCallback] and start to emit
-     * messages. When there are no more subscribers, or when the coroutine scope is
-     * cancelled, this flow will unregister the listener.
-     * [callbackFlow] is used to bridge between a callback-based API and Kotlin flows.
+     * A flow of [ExerciseMessage]s that wraps the underlying [ExerciseClient.exerciseUpdates]
+     * flow. The library handles the registration and unregistration of the underlying
+     * service listeners automatically when this flow is collected or cancelled.
      */
     val exerciseUpdateFlow = exerciseClient.exerciseUpdates().map { message ->
         when (message) {
