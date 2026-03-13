@@ -89,7 +89,7 @@ class ServiceBackedMeasureClientTest {
         assertThat(fakeService.registerEvents).hasSize(1)
         assertThat(fakeService.registerEvents[0].request.dataType).isEqualTo(HEART_RATE_BPM)
         assertThat(fakeService.registerEvents[0].request.packageName)
-            .isEqualTo("androidx.health.services.client.test")
+            .isEqualTo(ApplicationProvider.getApplicationContext<Application>().packageName)
     }
 
     @Test
@@ -113,7 +113,7 @@ class ServiceBackedMeasureClientTest {
         assertThat(fakeService.unregisterEvents).hasSize(1)
         assertThat(fakeService.unregisterEvents[0].request.dataType).isEqualTo(HEART_RATE_BPM)
         assertThat(fakeService.unregisterEvents[0].request.packageName)
-            .isEqualTo("androidx.health.services.client.test")
+            .isEqualTo(ApplicationProvider.getApplicationContext<Application>().packageName)
     }
 
     @Test

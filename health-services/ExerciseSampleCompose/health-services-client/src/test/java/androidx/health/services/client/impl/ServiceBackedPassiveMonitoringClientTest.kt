@@ -115,7 +115,7 @@ class ServiceBackedPassiveMonitoringClientTest {
         assertThat(request.passiveListenerConfig.dataTypes)
             .containsExactly(STEPS_DAILY, CALORIES_DAILY)
         assertThat(request.passiveListenerConfig.shouldUserActivityInfoBeRequested).isTrue()
-        assertThat(request.packageName).isEqualTo("androidx.health.services.client.test")
+        assertThat(request.packageName).isEqualTo(ApplicationProvider.getApplicationContext<Application>().packageName)
     }
 
     @Test
@@ -168,7 +168,7 @@ class ServiceBackedPassiveMonitoringClientTest {
         val request = fakeService.registerCallbackRequests[0]
         assertThat(request.passiveListenerConfig.dataTypes).containsExactly(STEPS_DAILY)
         assertThat(request.passiveListenerConfig.shouldUserActivityInfoBeRequested).isTrue()
-        assertThat(request.packageName).isEqualTo("androidx.health.services.client.test")
+        assertThat(request.packageName).isEqualTo(ApplicationProvider.getApplicationContext<Application>().packageName)
     }
 
     @Test
@@ -402,7 +402,7 @@ class ServiceBackedPassiveMonitoringClientTest {
 
         assertThat(fakeService.unregisterCallbackPackageNames).hasSize(1)
         assertThat(fakeService.unregisterCallbackPackageNames[0])
-            .isEqualTo("androidx.health.services.client.test")
+            .isEqualTo(ApplicationProvider.getApplicationContext<Application>().packageName)
     }
 
     class FakeListenerService : PassiveListenerService()

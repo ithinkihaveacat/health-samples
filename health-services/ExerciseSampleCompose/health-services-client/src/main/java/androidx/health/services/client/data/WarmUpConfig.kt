@@ -26,7 +26,7 @@ import androidx.health.services.client.proto.DataProto
  * @constructor Creates a new WarmUpConfig for an exercise tracked using Health Services
  */
 @Suppress("ParcelCreator")
-public class WarmUpConfig(
+public data class WarmUpConfig(
     public val exerciseType: ExerciseType,
     public val dataTypes: Set<DeltaDataType<*, *>>,
 ) {

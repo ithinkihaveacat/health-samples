@@ -159,9 +159,9 @@ class ExerciseConfigTest {
     @Test
     fun builder_exerciseTypeConfigNull() {
         val exerciseTypeConfigNotSetExerciseConfig =
-            ExerciseConfig.builder(ExerciseType.UNKNOWN).build()
+            ExerciseConfig(ExerciseType.UNKNOWN)
         val setNullExerciseTypeConfigExerciseConfig =
-            ExerciseConfig.builder(ExerciseType.UNKNOWN).setExerciseTypeConfig(null).build()
+            ExerciseConfig(ExerciseType.UNKNOWN, exerciseTypeConfig = null)
 
         assertThat(exerciseTypeConfigNotSetExerciseConfig.exerciseTypeConfig).isNull()
         assertThat(setNullExerciseTypeConfigExerciseConfig.exerciseTypeConfig).isNull()

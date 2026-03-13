@@ -35,12 +35,13 @@ import androidx.health.services.client.proto.DataProto
  *   using Health Services
  */
 @Suppress("ParcelCreator")
-public class PassiveListenerConfig(
-    public val dataTypes: Set<DataType<out Any, out DataPoint<out Any>>>,
+public data class PassiveListenerConfig(
+
+    public val dataTypes: Set<DataType<out Any, out DataPoint<out Any>>> = emptySet(),
     @get:JvmName("shouldUserActivityInfoBeRequested")
-    public val shouldUserActivityInfoBeRequested: Boolean,
-    public val dailyGoals: Set<PassiveGoal>,
-    public val healthEventTypes: Set<HealthEvent.Type>,
+    public val shouldUserActivityInfoBeRequested: Boolean = false,
+    public val dailyGoals: Set<PassiveGoal> = emptySet(),
+    public val healthEventTypes: Set<HealthEvent.Type> = emptySet(),
 ) {
 
     internal constructor(
@@ -60,64 +61,7 @@ public class PassiveListenerConfig(
         return true
     }
 
-    /** Builder for [PassiveListenerConfig] instances. */
-    public class Builder {
-        private var dataTypes: Set<DataType<*, *>> = emptySet()
-        private var requestUserActivityState: Boolean = false
-        private var dailyGoals: Set<PassiveGoal> = emptySet()
-        private var healthEventTypes: Set<HealthEvent.Type> = emptySet()
-
-        /** Sets the requested [DataType]s that should be passively tracked. */
-        public fun setDataTypes(dataTypes: Set<DataType<*, *>>): Builder {
-            this.dataTypes = dataTypes.toSet()
-            return this
-        }
-
-        /**
-         * Sets whether to request the [UserActivityState] updates. If not set they will not be
-         * included by default and [PassiveListenerCallback.onUserActivityInfoReceived] will not be
-         * invoked. [UserActivityState] requires [android.Manifest.permission.ACTIVITY_RECOGNITION].
-         *
-         * @param shouldUserActivityInfoBeRequested whether to request user activity state tracking
-         */
-        @Suppress("MissingGetterMatchingBuilder")
-        fun setShouldUserActivityInfoBeRequested(
-            shouldUserActivityInfoBeRequested: Boolean
-        ): Builder {
-            this.requestUserActivityState = shouldUserActivityInfoBeRequested
-            return this
-        }
-
-        /**
-         * Sets the requested daily [PassiveGoal]s that should be passively tracked.
-         *
-         * @param dailyGoals the daily [PassiveGoal]s that should be tracked passively
-         */
-        public fun setDailyGoals(dailyGoals: Set<PassiveGoal>): Builder {
-            this.dailyGoals = dailyGoals.toSet()
-            return this
-        }
-
-        /**
-         * Sets the requested [HealthEvent.Type]s that should be passively tracked.
-         *
-         * @param healthEventTypes the [HealthEvent.Type]s that should be tracked passively
-         */
-        public fun setHealthEventTypes(healthEventTypes: Set<HealthEvent.Type>): Builder {
-            this.healthEventTypes = healthEventTypes.toSet()
-            return this
-        }
-
-        /** Returns the built [PassiveListenerConfig]. */
-        public fun build(): PassiveListenerConfig {
-            return PassiveListenerConfig(
-                dataTypes,
-                requestUserActivityState,
-                dailyGoals,
-                healthEventTypes,
-            )
-        }
-    }
+    
 
     internal val proto: DataProto.PassiveListenerConfig =
         DataProto.PassiveListenerConfig.newBuilder()
@@ -128,6 +72,6 @@ public class PassiveListenerConfig(
             .build()
 
     public companion object {
-        @JvmStatic public fun builder(): Builder = Builder()
+        
     }
 }

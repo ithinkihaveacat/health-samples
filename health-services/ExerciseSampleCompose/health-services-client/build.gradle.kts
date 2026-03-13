@@ -54,5 +54,6 @@ dependencies {
     testImplementation("com.google.truth:truth:1.1.5")
     testImplementation("androidx.test:core:1.6.1")
     testImplementation("androidx.test.ext:junit:1.2.1")
+    testImplementation("app.cash.turbine:turbine:1.1.0")
     testImplementation("org.jetbrains.kotlin:kotlin-reflect:1.9.10")
 }

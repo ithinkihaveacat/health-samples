@@ -23,7 +23,6 @@ import androidx.health.services.client.data.ComparisonType
 import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.ExerciseTrackedStatus
 import androidx.health.services.client.data.ExerciseTypeCapabilities
-import androidx.health.services.client.getCurrentExerciseInfo
 
 suspend fun ExerciseClient.isExerciseInProgress(): Boolean {
     val exerciseInfo = getCurrentExerciseInfo()
