@@ -84,7 +84,9 @@ constructor(
 
     companion object {
         val permissions = buildList {
-            add(Manifest.permission.BODY_SENSORS)
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                add(Manifest.permission.BODY_SENSORS)
+            }
             add(Manifest.permission.ACCESS_FINE_LOCATION)
             add(Manifest.permission.ACTIVITY_RECOGNITION)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
