@@ -132,7 +132,7 @@ constructor(
                 exerciseType = ExerciseType.RUNNING,
                 dataTypes = dataTypes,
                 isAutoPauseAndResumeEnabled = supportsAutoPauseAndResume,
-                isGpsEnabled = false,
+                isGpsEnabled = true,
                 exerciseGoals = exerciseGoals
             )
 
@@ -149,7 +149,7 @@ constructor(
         val warmUpConfig =
             WarmUpConfig(
                 exerciseType = ExerciseType.RUNNING,
-                dataTypes = setOf(DataType.HEART_RATE_BPM)
+                dataTypes = setOf(DataType.HEART_RATE_BPM, DataType.LOCATION)
             )
         try {
             exerciseClient.prepareExercise(warmUpConfig)
