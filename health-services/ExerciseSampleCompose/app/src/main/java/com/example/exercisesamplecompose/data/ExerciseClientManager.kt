@@ -17,7 +17,6 @@ package com.example.exercisesamplecompose.data
 
 import android.annotation.SuppressLint
 import androidx.health.services.client.ExerciseClient
-import androidx.health.services.client.ExerciseUpdateCallback
 import androidx.health.services.client.HealthServicesClient
 import androidx.health.services.client.data.Availability
 import androidx.health.services.client.data.ComparisonType
@@ -31,20 +30,13 @@ import androidx.health.services.client.data.ExerciseTypeCapabilities
 import androidx.health.services.client.data.ExerciseUpdate
 import androidx.health.services.client.data.LocationAvailability
 import androidx.health.services.client.data.WarmUpConfig
-import androidx.health.services.client.endExercise
-import androidx.health.services.client.getCapabilities
-import androidx.health.services.client.markLap
-import androidx.health.services.client.pauseExercise
-import androidx.health.services.client.prepareExercise
-import androidx.health.services.client.resumeExercise
-import androidx.health.services.client.startExercise
+
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.filterNotNull
 import com.example.exercisesamplecompose.service.ExerciseLogger
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.time.Duration
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.channels.trySendBlocking
-import kotlinx.coroutines.flow.callbackFlow
 
 /**
  * Entry point for [HealthServicesClient] APIs, wrapping them in coroutine-friendly APIs.
@@ -190,48 +182,22 @@ constructor(
     }
 
     /**
-     * When the flow starts, it will register an [ExerciseUpdateCallback] and start to emit
-     * messages. When there are no more subscribers, or when the coroutine scope is
-     * cancelled, this flow will unregister the listener.
-     * [callbackFlow] is used to bridge between a callback-based API and Kotlin flows.
+     * A flow of [ExerciseMessage]s that wraps the underlying [ExerciseClient.exerciseUpdates]
+     * flow. The library handles the registration and unregistration of the underlying
+     * service listeners automatically when this flow is collected or cancelled.
      */
-    val exerciseUpdateFlow =
-        callbackFlow {
-            val callback =
-                object : ExerciseUpdateCallback {
-                    override fun onExerciseUpdateReceived(update: ExerciseUpdate) {
-                        trySendBlocking(ExerciseMessage.ExerciseUpdateMessage(update))
-                    }
-
-                    override fun onLapSummaryReceived(lapSummary: ExerciseLapSummary) {
-                        trySendBlocking(ExerciseMessage.LapSummaryMessage(lapSummary))
-                    }
-
-                    override fun onRegistered() {
-                    }
-
-                    override fun onRegistrationFailed(throwable: Throwable) {
-                        TODO("Not yet implemented")
-                    }
-
-                    override fun onAvailabilityChanged(
-                        dataType: DataType<*, *>,
-                        availability: Availability
-                    ) {
-                        if (availability is LocationAvailability) {
-                            trySendBlocking(
-                                ExerciseMessage.LocationAvailabilityMessage(availability)
-                            )
-                        }
-                    }
-                }
-
-            exerciseClient.setUpdateCallback(callback)
-            awaitClose {
-                // Ignore async result
-                exerciseClient.clearUpdateCallbackAsync(callback)
+    val exerciseUpdateFlow = exerciseClient.exerciseUpdates().map { message ->
+        when (message) {
+            is ExerciseUpdateMessage.Update -> ExerciseMessage.ExerciseUpdateMessage(message.update)
+            is ExerciseUpdateMessage.LapSummary -> ExerciseMessage.LapSummaryMessage(message.lapSummary)
+            is ExerciseUpdateMessage.AvailabilityChanged -> {
+                if (message.availability is LocationAvailability) {
+                    ExerciseMessage.LocationAvailabilityMessage(message.availability as LocationAvailability)
+                } else null
             }
+            else -> null
         }
+    }.filterNotNull()
 
     private companion object {
         const val CALORIES_THRESHOLD = 250.0
